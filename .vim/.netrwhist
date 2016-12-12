@@ -1,10 +1,2 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =8
-let g:netrw_dirhist_1='/home/chris/.vim'
-let g:netrw_dirhist_2='/home/chris/workspace/atfpaper_docker/js/src'
-let g:netrw_dirhist_3='/home/chris/.vim'
-let g:netrw_dirhist_4='/home/chris/workspace/atfpaper_docker/web/client_migrations/migrations/versions'
-let g:netrw_dirhist_5='/tmp/pip-fn5xqroi-build'
-let g:netrw_dirhist_6='/home/chris/workspace/atfpaper_docker/js'
-let g:netrw_dirhist_7='/home/chris/.vim'
-let g:netrw_dirhist_8='/home/libki/libki-server/installer'
+let g:netrw_dirhist_cnt =0

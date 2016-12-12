@@ -116,6 +116,12 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# Make CapsLock behave like Ctrl
+setxkbmap -option ctrl:nocaps
+
+# make press-release CapsLock behave like Escape
+xcape -e 'Control_L=Escape'
+
 #export PDF_BUCKET=
 export EMAIL_FROM_ARN=
 export EMAIL_FROM_ADDRESS=
