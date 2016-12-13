@@ -159,7 +159,7 @@ bar {
 bindsym --release $mod+Control+p exec "xfce4-screenshooter -r"
 bindsym $mod+p exec "xfce4-screenshooter"
 bindsym $mod+Control+z exec "xterm -hold -e /bin/echo stuff"
-exec compton --no-startup-id --vsync opengl --backend glx --paint-on-overlay
+exec compton --no-startup-id
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
