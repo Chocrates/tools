@@ -120,7 +120,7 @@ fi
 setxkbmap -option ctrl:nocaps
 
 # make press-release CapsLock behave like Escape
-xcape -e 'Control_L=Escape'
+xcape -e 'Control_L=Escape' -t 500
 
 #export PDF_BUCKET=
 export EMAIL_FROM_ARN=
@@ -132,3 +132,4 @@ alias nose2="python3 /home/chris/.local/lib/python3.5/site-packages/nose2/__main
 
 export PATH=$PATH:/home/chris/bin
 export TERMINAL=termite
+export EDITOR=vim
