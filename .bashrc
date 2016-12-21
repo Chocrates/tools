@@ -133,3 +133,5 @@ alias nose2="python3 /home/chris/.local/lib/python3.5/site-packages/nose2/__main
 export PATH=$PATH:/home/chris/bin
 export TERMINAL=termite
 export EDITOR=vim
+
+#xrandr --output eDP1 --mode 1920x1080
