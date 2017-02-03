@@ -132,3 +132,8 @@ alias nose2="python3 /home/chris/.local/lib/python3.5/site-packages/nose2/__main
 
 export PATH=$PATH:/home/chris/bin
 export TERMINAL=termite
+export USER="chris"
+export DISPLAY="1"
+export DEPTH="16"
+export GEOMETRY="1280x1024"
+export OPTIONS="-depth ${DEPTH} -geometry ${GEOMETRY} :${DISPLAY} -localhost"
