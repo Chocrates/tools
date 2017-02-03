@@ -1,6 +1,5 @@
 --- # playbook demo of debug and register statements
-- hosts: test
-  remote_user: ansible
+- hosts: 127.0.0.1
   become: yes
   become_method: sudo
   connection: local

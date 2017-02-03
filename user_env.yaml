@@ -24,6 +24,7 @@
       - libpcre2-dev
       - libncurses-dev
       - libevent-dev
+      - xcape
     register: result
   - name: get vte source
     git:
@@ -59,10 +60,5 @@
     command: make chdir=/tmp/tmux
   - name: install tmux
     command: make install chdir=/tmp/tmux
-
-  - name: install dotfiles
-    git:
-      repo: https://github.com/Chocrates/dotfiles.git
-      dest: /home/{{ user }}
 
   - debug: var=result
