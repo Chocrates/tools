@@ -156,14 +156,23 @@ bar {
         status_command i3status
 }
 
+exec --no-startup-id compton 
 bindsym --release $mod+Control+p exec "xfce4-screenshooter -r"
 bindsym $mod+p exec "xfce4-screenshooter"
 bindsym $mod+Control+z exec "xterm -hold -e /bin/echo stuff"
-exec compton --no-startup-id
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
 
+<<<<<<< HEAD
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 2 +5%
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 2 -5%
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 2 toggle
+=======
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle
+
+bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 10
+bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 10
+>>>>>>> 9174ea192b616fe235871c53515e256e6abf676f

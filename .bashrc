@@ -120,7 +120,7 @@ fi
 setxkbmap -option ctrl:nocaps
 
 # make press-release CapsLock behave like Escape
-xcape -e 'Control_L=Escape'
+xcape -e 'Control_L=Escape' -t 500
 
 #export PDF_BUCKET=
 export EMAIL_FROM_ARN=
@@ -137,3 +137,4 @@ export DISPLAY="1"
 export DEPTH="16"
 export GEOMETRY="1280x1024"
 export OPTIONS="-depth ${DEPTH} -geometry ${GEOMETRY} :${DISPLAY} -localhost"
+export EDITOR=vim
