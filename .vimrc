@@ -9,9 +9,13 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-Plugin 'https://github.com/fholgado/minibufexpl.vim.git'
+"Plugin 'https://github.com/fholgado/minibufexpl.vim.git'
 Plugin 'https://github.com/vim-scripts/AfterColors.vim.git'
 Plugin 'https://github.com/tpope/vim-sleuth.git'
+"Plugin 'https://github.com/vim-scripts/ZoomWin.git'
+Plugin 'https://github.com/majutsushi/tagbar.git'
+"Plugin 'https://github.com/xolox/vim-misc.git'
+"Plugin 'https://github.com/xolox/vim-easytags.git'
 
 call vundle#end()
 filetype plugin indent on
@@ -54,6 +58,7 @@ set undodir=~/.vim/undo//
 
 nnoremap <C-j> :%!python3 -m json.tool<cr>
 nnoremap <C-x> :%!xmllint --format -<cr>
+nmap <F8> :TagbarToggle<CR>
 nnoremap <C-f> :set foldenable<cr>
 nnoremap <C-r> :set nofoldenable<cr>
 
