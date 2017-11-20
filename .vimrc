@@ -21,7 +21,7 @@ call vundle#end()
 filetype plugin indent on
 
 
-colorscheme desert
+colorscheme slate
 highlight Normal guibg=black guifg=lightblue 
 set background=dark
 
@@ -58,6 +58,9 @@ set undodir=~/.vim/undo//
 
 nnoremap <C-j> :%!python3 -m json.tool<cr>
 nnoremap <C-x> :%!xmllint --format -<cr>
+nnoremap <C-o> :%!~/workspace/pyorder/order.py<cr>
+nnoremap <C-y> :%!tee /dev/clipboard<cr>
+nnoremap <C-p> :%!cat /dev/clipboard<cr>
 nmap <F8> :TagbarToggle<CR>
 nnoremap <C-f> :set foldenable<cr>
 nnoremap <C-r> :set nofoldenable<cr>
