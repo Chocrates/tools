@@ -25,6 +25,7 @@
       - libncurses-dev
       - libevent-dev
       - xcape
+      - intltool
     register: result
   - name: get vte source
     git:

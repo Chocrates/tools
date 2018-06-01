@@ -13,4 +13,4 @@ cp -r .vim /home/$USER/.vim
 cp .vimrc /home/$USER/.vimrc
 cp .tmux.conf /home/$USER/.vimrc
 
-cd /home/$USER && rm -rf dotfiles
+#cd /home/$USER && rm -rf dotfiles
