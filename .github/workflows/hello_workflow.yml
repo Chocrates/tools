@@ -15,3 +15,7 @@ jobs:
       run: |
         echo Add other actions to build,
         echo test, and deploy your project.
+    - name: Show off my super secrets
+      env:
+        super_secret: ${{ secrets.CHRISS_SUPER_SECRET_WORD }}
+      run: echo SHHHH! $super_secret is a secret!
