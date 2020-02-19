@@ -22,7 +22,7 @@ org = sys.argv[1]
 url = f'https://api.github.com/orgs/{org}/invitations'
 token = sys.argv[2]
 
-params = { 'per_page': 1,
+params = { 'per_page': 100,
            'page': 1
 }
 
