@@ -43,8 +43,9 @@ func main() {
 			repoName := fmt.Sprintf("%s-%s", repoPrefix, user)
 			// create repo from template
 			repo := &github.TemplateRepoRequest{
-				Name:  &repoName,
-				Owner: &org,
+				Name:    &repoName,
+				Owner:   &org,
+				Private: github.Bool(true),
 			}
 			_, _, err = client.Repositories.CreateFromTemplate(ctx, org, template, repo)
 			if err != nil {
