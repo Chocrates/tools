@@ -90,12 +90,12 @@ async function main() {
                             const fileData = fs.readFileSync(`${file}`, "utf8");
                             console.log("Replacing file data");
                             var result = fileData.replace(
-                                new RegExp(sourceOrg,"g"),
+                                new RegExp(sourceOrg, "g"),
                                 destOrg
                             );
 
-                            if(fileData !== result){
-                                console.log(`Results: ${result}`)
+                            if (fileData !== result) {
+                                console.log(`Results: ${result}`);
                             }
                             console.log("Writing file");
                             fs.writeFileSync(`${file}`, result, "utf8");
@@ -117,6 +117,7 @@ async function main() {
                 .finally(() => {
                     console.log("Cleaning up the directory");
                     fs.rmdirSync(repo, { recursive: true });
+                    console.log("Am I failing here?");
                 });
         }
         // const options = client.rest.search.code.endpoint.merge({
