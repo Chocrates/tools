@@ -73,10 +73,13 @@ async function main() {
                 owner: sourceOrg,
                 repo: repo,
             });
+            console.log(`Cloning repo ${sourceOrg}/${repo}`);
             git.clone(`https://${token}@github.com/${sourceOrg}/${repo}.git`)
                 .then(() => {
                     console.log("Checking out new branch");
-                    git.spawn(["checkout", "-b", "fix-org-references"]);
+                    git.spawn(["checkout", "-b", "fix-org-references"], {
+                        cwd: repo,
+                    });
                 })
                 .then(() => {
                     console.log("Replacing org instances in repo");
@@ -86,18 +89,12 @@ async function main() {
                     );
                     for (let file of filesToAlter) {
                         if (!fs.lstatSync(file).isDirectory()) {
-                            console.log(`Getting file data for ${file}`);
                             const fileData = fs.readFileSync(`${file}`, "utf8");
-                            console.log("Replacing file data");
                             var result = fileData.replace(
                                 new RegExp(sourceOrg, "g"),
                                 destOrg
                             );
 
-                            if (fileData !== result) {
-                                console.log(`Results: ${result}`);
-                            }
-                            console.log("Writing file");
                             fs.writeFileSync(`${file}`, result, "utf8");
                         }
                     }
@@ -114,12 +111,23 @@ async function main() {
                     console.log("Pushing branch up to origin");
                     git.spawn(["push", "-u", "origin", "fix-org-references"]);
                 })
+                .then(() => {
+                    // Create PR for new changes
+                    client.pulls.create({
+                        owner: sourceOrg,
+                        repo: repo,
+                        head: "fix-org-references",
+                        base: repoInfo.data.default_branch,
+                    });
+                })
+                .catch((err) => console.error(err))
                 .finally(() => {
                     console.log("Cleaning up the directory");
                     fs.rmdirSync(repo, { recursive: true });
                     console.log("Am I failing here?");
                 });
         }
+
         // const options = client.rest.search.code.endpoint.merge({
         //     q: query,
         //     per_page: 100,
