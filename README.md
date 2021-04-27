@@ -8,7 +8,8 @@ Most deal diredtly with the GitHub API.
 - [get-issues](https://github.com/Chocrates/tools/tree/master/get-issues)
   - Gets issues with the label `due-on: todays_date`, for example `due-on: 2021-04-28`
 - [get-org-invitations](https://github.com/Chocrates/tools/tree/master/get-org-invitations)
-  - Python example of calling the API with requests,  gets org invitations- [pygit-auth-refresh](https://github.com/Chocrates/tools/tree/master/pygit-auth-refresh)
+  - Python example of calling the API with requests, gets org invitations
+- [pygit-auth-refresh](https://github.com/Chocrates/tools/tree/master/pygit-auth-refresh)
     - PyGit sample that will watch for expired [App Tokens](https://docs.github.com/en/developers/apps/authenticating-with-github-apps#authenticating-as-a-github-app) and refresh them
 - [remove-protections](https://github.com/Chocrates/tools/tree/master/remove-protections)
   - Removes branch protections from the default branch for all repos starting with prefix
