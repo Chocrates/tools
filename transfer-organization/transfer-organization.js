@@ -64,7 +64,6 @@ async function main() {
         let destOrg = argv.destinationOrganization;
         let path = argv.file;
 
-        // get repos
         const repos = fs.readFileSync(path, "utf8").trim().split("\n");
 
         for (let repo of repos) {
@@ -78,12 +77,10 @@ async function main() {
                 `https://${token}@github.com/${sourceOrg}/${repo}.git`
             );
 
-            console.log("Checking out new branch");
             result = await git.spawn(["checkout", "-b", "fix-org-references"], {
                 cwd: repo,
             });
 
-            console.log("Replacing org instances in repo");
             const files = glob.sync(`${repo}/**/*`);
             const filesToAlter = files.filter(
                 (file) => file.indexOf(".git") < 0
@@ -92,7 +89,7 @@ async function main() {
                 if (!fs.lstatSync(file).isDirectory()) {
                     const fileData = fs.readFileSync(`${file}`, "utf8");
                     var replace = fileData.replace(
-                        new RegExp(sourceOrg, "g"),
+                        new RegExp(sourceOrg, "ig"),
                         destOrg
                     );
 
@@ -100,42 +97,39 @@ async function main() {
                 }
             }
 
-            console.log("Adding changed files");
-            result = await git.spawn(["add", "."]);
-            console.log("Comming changes");
-            result = await git.spawn([
-                "commit",
-                "-m",
-                '"Altering org references"',
-            ]);
-            console.log("Pushing branch up to origin");
-            result = await git.spawn([
-                "push",
-                "-u",
-                "origin",
-                "fix-org-references",
-            ]);
-            // Create PR for new changes
+            result = await git.spawn(["add", "."], {
+                cwd: repo,
+            });
+            result = await git.spawn(
+                ["commit", "-m", '"Altering org references"'],
+                {
+                    cwd: repo,
+                }
+            );
+            result = await git.spawn(
+                ["push", "-u", "origin", "fix-org-references"],
+                {
+                    cwd: repo,
+                }
+            );
             await client.pulls.create({
                 owner: sourceOrg,
                 repo: repo,
                 head: "fix-org-references",
                 base: repoInfo.data.default_branch,
+                title: `Migrate ${sourceOrg} references`,
+            });
+
+            await client.repos.transfer({
+                owner: sourceOrg,
+                repo: repo,
+                new_owner: destOrg,
             });
         }
-
-        // const options = client.rest.search.code.endpoint.merge({
-        //     q: query,
-        //     per_page: 100,
-        // });
-
-        // const search_results = await client.paginate(options);
     } catch (e) {
         console.error(e);
     } finally {
-        console.log("Cleaning up the directory");
-        //                    fs.rmdirSync(repo, { recursive: true });
-        console.log("Am I failing here?");
+        fs.rmdirSync(repo, { recursive: true });
     }
 }
 
