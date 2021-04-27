@@ -120,7 +120,9 @@ async function main() {
                         base: repoInfo.data.default_branch,
                     });
                 })
-                .catch((err) => console.error(err))
+                .catch((err) => {
+                    console.error(err);
+                })
                 .finally(() => {
                     console.log("Cleaning up the directory");
                     fs.rmdirSync(repo, { recursive: true });
