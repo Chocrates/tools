@@ -75,29 +75,31 @@ async function main() {
             });
             console.log(`Cloning repo ${sourceOrg}/${repo}`);
             git.clone(`https://${token}@github.com/${sourceOrg}/${repo}.git`)
-                .then(() => {
+                .then((result) => {
                     console.log("Checking out new branch");
                     git.spawn(["checkout", "-b", "fix-org-references"], {
                         cwd: repo,
-                    });
-                })
-                .then(() => {
-                    console.log("Replacing org instances in repo");
-                    const files = glob.sync(`${repo}/**/*`);
-                    const filesToAlter = files.filter(
-                        (file) => file.indexOf(".git") < 0
-                    );
-                    for (let file of filesToAlter) {
-                        if (!fs.lstatSync(file).isDirectory()) {
-                            const fileData = fs.readFileSync(`${file}`, "utf8");
-                            var result = fileData.replace(
-                                new RegExp(sourceOrg, "g"),
-                                destOrg
-                            );
+                    }).then((result) => {
+                        console.log("Replacing org instances in repo");
+                        const files = glob.sync(`${repo}/**/*`);
+                        const filesToAlter = files.filter(
+                            (file) => file.indexOf(".git") < 0
+                        );
+                        for (let file of filesToAlter) {
+                            if (!fs.lstatSync(file).isDirectory()) {
+                                const fileData = fs.readFileSync(
+                                    `${file}`,
+                                    "utf8"
+                                );
+                                var result = fileData.replace(
+                                    new RegExp(sourceOrg, "g"),
+                                    destOrg
+                                );
 
-                            fs.writeFileSync(`${file}`, result, "utf8");
+                                fs.writeFileSync(`${file}`, result, "utf8");
+                            }
                         }
-                    }
+                    });
                 })
                 .then(() => {
                     console.log("Adding changed files");
@@ -125,7 +127,7 @@ async function main() {
                 })
                 .finally(() => {
                     console.log("Cleaning up the directory");
-                    fs.rmdirSync(repo, { recursive: true });
+                    //                    fs.rmdirSync(repo, { recursive: true });
                     console.log("Am I failing here?");
                 });
         }
