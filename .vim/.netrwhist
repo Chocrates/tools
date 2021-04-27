@@ -1,5 +1,0 @@
-let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =3
-let g:netrw_dirhist_1='/var/log/lightdm'
-let g:netrw_dirhist_2='/var/lib/lightdm'
-let g:netrw_dirhist_3='/home/chris/workspace/atfpaper_docker/deployment/messagequeue'
