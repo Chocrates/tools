@@ -64,72 +64,99 @@ async function main() {
         let destOrg = argv.destinationOrganization;
         let path = argv.file;
 
-        const repos = fs.readFileSync(path, "utf8").trim().split("\n");
-
+        const repos = JSON.parse(fs.readFileSync(path, "utf8"));
+        /*
+        [
+        {
+            "name": "repo",
+            "teams": ["team","team"]
+        }
+        ]
+        
+         */
         for (let repo of repos) {
-            // Get default branch
-            const repoInfo = await client.repos.get({
-                owner: sourceOrg,
-                repo: repo,
-            });
-            console.log(`Cloning repo ${sourceOrg}/${repo}`);
-            let result = await git.clone(
-                `https://${token}@github.com/${sourceOrg}/${repo}.git`
-            );
+            try {
+                // Get default branch
+                const repoInfo = await client.repos.get({
+                    owner: sourceOrg,
+                    repo: repo.name,
+                });
+                console.log(`Cloning repo ${sourceOrg}/${repo.name}`);
+                let result = await git.clone(
+                    `https://${token}@github.com/${sourceOrg}/${repo.name}.git`
+                );
 
-            result = await git.spawn(["checkout", "-b", "fix-org-references"], {
-                cwd: repo,
-            });
+                result = await git.spawn(
+                    ["checkout", "-b", "fix-org-references"],
+                    {
+                        cwd: repo.name,
+                    }
+                );
 
-            const files = glob.sync(`${repo}/**/*`);
-            const filesToAlter = files.filter(
-                (file) => file.indexOf(".git") < 0
-            );
-            for (let file of filesToAlter) {
-                if (!fs.lstatSync(file).isDirectory()) {
-                    const fileData = fs.readFileSync(`${file}`, "utf8");
-                    var replace = fileData.replace(
-                        new RegExp(sourceOrg, "ig"),
-                        destOrg
+                const files = glob.sync(`${repo.name}/**/*`);
+                const filesToAlter = files.filter(
+                    (file) => file.indexOf(".git") < 0
+                );
+                for (let file of filesToAlter) {
+                    if (!fs.lstatSync(file).isDirectory()) {
+                        const fileData = fs.readFileSync(`${file}`, "utf8");
+                        var replace = fileData.replace(
+                            new RegExp(sourceOrg, "ig"),
+                            destOrg
+                        );
+
+                        fs.writeFileSync(`${file}`, replace, "utf8");
+                    }
+                }
+
+                result = await git.spawn(["add", "."], {
+                    cwd: repo.name,
+                });
+                if (result.stdout !== "") {
+                    result = await git.spawn(
+                        ["commit", "-m", '"Altering org references"'],
+                        {
+                            cwd: repo.name,
+                        }
                     );
-
-                    fs.writeFileSync(`${file}`, replace, "utf8");
+                    result = await git.spawn(
+                        ["push", "-u", "origin", "fix-org-references"],
+                        {
+                            cwd: repo.name,
+                        }
+                    );
+                    await client.pulls.create({
+                        owner: sourceOrg,
+                        repo: repo.name,
+                        head: "fix-org-references",
+                        base: repoInfo.data.default_branch,
+                        title: `Migrate ${sourceOrg} references`,
+                    });
                 }
+                // Get Team Id's
+                teams = [];
+                for (let team of repo.teams) {
+                    const resp = await client.teams.getByName({
+                        org: destOrg,
+                        team_slug: team,
+                    });
+                    teams.push(resp.data.id);
+                }
+
+                await client.repos.transfer({
+                    owner: sourceOrg,
+                    repo: repo.name,
+                    new_owner: destOrg,
+                    team_ids: teams,
+                });
+            } catch (e) {
+                console.error(e);
+            } finally {
+                fs.rmdirSync(repo.name, { recursive: true });
             }
-
-            result = await git.spawn(["add", "."], {
-                cwd: repo,
-            });
-            result = await git.spawn(
-                ["commit", "-m", '"Altering org references"'],
-                {
-                    cwd: repo,
-                }
-            );
-            result = await git.spawn(
-                ["push", "-u", "origin", "fix-org-references"],
-                {
-                    cwd: repo,
-                }
-            );
-            await client.pulls.create({
-                owner: sourceOrg,
-                repo: repo,
-                head: "fix-org-references",
-                base: repoInfo.data.default_branch,
-                title: `Migrate ${sourceOrg} references`,
-            });
-
-            await client.repos.transfer({
-                owner: sourceOrg,
-                repo: repo,
-                new_owner: destOrg,
-            });
         }
     } catch (e) {
         console.error(e);
-    } finally {
-        fs.rmdirSync(repo, { recursive: true });
     }
 }
 
