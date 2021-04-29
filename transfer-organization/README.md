@@ -3,3 +3,13 @@ This tool will take in a list of repos, separated by new lines, and transfer the
 
 ## Usage
 `node transfer-organization.js --token <token> --source-organization <org> --destination-organization <org> --file <repo file>`
+
+## Repo file format
+The repo file should be in JSON format as follows
+```
+[ 
+  {
+    "name": "Name of the repo",
+    "teams": ["team_slug", "team_slug"]
+  }
+]
