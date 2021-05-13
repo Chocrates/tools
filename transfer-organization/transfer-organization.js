@@ -10,6 +10,25 @@ const sleep = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
+const TEN_SECONDS = 10 * 1000;
+
+const getPermissionName = (permissionObj) => {
+    // I think these have to be in order since the object returns true for all the values team has
+    if (permissionObj["admin"]) {
+        return "admin";
+    } else if (permissionObj["maintain"]) {
+        return "maintain";
+    } else if (permissionObj["push"]) {
+        return "push";
+    } else if (permissionObj["triage"]) {
+        return "triage";
+    } else if (permissionObj["pull"]) {
+        return "pull";
+    } else {
+        return null;
+    }
+};
+
 async function main() {
     try {
         const argv = require("yargs")
@@ -67,10 +86,10 @@ async function main() {
         const repos = JSON.parse(fs.readFileSync(path, "utf8"));
         /*
         [
-        {
-            "name": "repo",
-            "teams": ["team","team"]
-        }
+          {
+              "name": "repo",
+              "teams": ["team","team"]
+          }
         ]
         
          */
@@ -136,19 +155,67 @@ async function main() {
                 // Get Team Id's
                 teams = [];
                 for (let team of repo.teams) {
-                    const resp = await client.teams.getByName({
+                    teamObj = { name: team };
+                    let permissionResp;
+                    try {
+                        permissionResp = await client.teams.checkPermissionsForRepoInOrg(
+                            {
+                                org: sourceOrg,
+                                team_slug: team,
+                                owner: sourceOrg,
+                                repo: repo.name,
+                                headers: {
+                                    accept:
+                                        "application/vnd.github.v3.repository+json",
+                                },
+                            }
+                        );
+                    } catch (e) {
+                        if (e.status === 404) {
+                            //Team did not have access to repo originally, so giving it read access
+                            permissionResp = {
+                                data: {
+                                    permissions: {
+                                        admin: false,
+                                        maintain: false,
+                                        push: false,
+                                        triage: false,
+                                        pull: true,
+                                    },
+                                },
+                            };
+                        } else {
+                            throw e;
+                        }
+                    }
+                    teamObj.permissions = permissionResp.data.permissions;
+                    const dstResp = await client.teams.getByName({
                         org: destOrg,
                         team_slug: team,
                     });
-                    teams.push(resp.data.id);
+                    teamObj.id = dstResp.data.id;
+                    teams.push(teamObj);
                 }
 
                 await client.repos.transfer({
                     owner: sourceOrg,
                     repo: repo.name,
                     new_owner: destOrg,
-                    team_ids: teams,
+                    team_ids: teams.map((team) => team.id),
                 });
+
+                sleep(TEN_SECONDS);
+                for (let team of teams) {
+                    const resp = await client.teams.addOrUpdateRepoPermissionsInOrg(
+                        {
+                            org: destOrg,
+                            team_slug: team.name,
+                            owner: destOrg,
+                            repo: repo.name,
+                            permission: getPermissionName(team.permissions),
+                        }
+                    );
+                }
             } catch (e) {
                 console.error(e);
             } finally {
