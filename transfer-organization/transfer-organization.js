@@ -131,10 +131,16 @@ async function main() {
                     JSON.stringify(result)
                 );
 
-                const files = glob.sync(`${repo.name}/**/*`);
-                const filesToAlter = files.filter(
-                    (file) => file.indexOf(".git") < 0
-                );
+                const files = glob.sync(`${repo.name}/**/*`, { dot: true });
+                const filesToAlter = files.filter((file) => {
+                    if (file.indexOf(".github") > 0) {
+                        return true;
+                    } else if (file.indexOf(".git") > 0) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
 
                 log("Searching files", JSON.stringify(filesToAlter));
 
@@ -154,6 +160,15 @@ async function main() {
                     cwd: repo.name,
                 });
                 log("Adding changed files", JSON.stringify(result));
+
+                result = await git.spawn(["status", "--short"], {
+                    cwd: repo.name,
+                });
+
+                log(
+                    "Getting status too see if a PR is required",
+                    JSON.stringify(result)
+                );
                 if (result.stdout !== "") {
                     result = await git.spawn(
                         ["commit", "-m", '"Altering org references"'],
