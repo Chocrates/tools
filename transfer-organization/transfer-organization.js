@@ -55,6 +55,12 @@ async function main() {
                 description: "path to file with repositories",
                 global: true,
                 demandOption: true,
+            })
+            .option("verbose", {
+                alias: "v",
+                type: "boolean",
+                description: "Output debug information to stdout",
+                global: true,
             }).argv;
 
         const client = new MyOctokit({
@@ -79,9 +85,15 @@ async function main() {
         });
 
         let token = argv.token;
+        let verbose = argv.verbose;
         let sourceOrg = argv.sourceOrganization;
         let destOrg = argv.destinationOrganization;
         let path = argv.file;
+        let log = (action, result) => {
+            if (verbose) {
+                console.log(`${action}: ${result}`);
+            }
+        };
 
         const repos = JSON.parse(fs.readFileSync(path, "utf8"));
         /*
@@ -105,6 +117,8 @@ async function main() {
                     `https://${token}@github.com/${sourceOrg}/${repo.name}.git`
                 );
 
+                log("Finished cloning", JSON.stringify(result));
+
                 result = await git.spawn(
                     ["checkout", "-b", "fix-org-references"],
                     {
@@ -112,10 +126,18 @@ async function main() {
                     }
                 );
 
+                log(
+                    "Creating 'fix-org-references' branch",
+                    JSON.stringify(result)
+                );
+
                 const files = glob.sync(`${repo.name}/**/*`);
                 const filesToAlter = files.filter(
                     (file) => file.indexOf(".git") < 0
                 );
+
+                log("Searching files", JSON.stringify(filesToAlter));
+
                 for (let file of filesToAlter) {
                     if (!fs.lstatSync(file).isDirectory()) {
                         const fileData = fs.readFileSync(`${file}`, "utf8");
@@ -131,6 +153,7 @@ async function main() {
                 result = await git.spawn(["add", "."], {
                     cwd: repo.name,
                 });
+                log("Adding changed files", JSON.stringify(result));
                 if (result.stdout !== "") {
                     result = await git.spawn(
                         ["commit", "-m", '"Altering org references"'],
@@ -138,12 +161,14 @@ async function main() {
                             cwd: repo.name,
                         }
                     );
+                    log("Committing changes", JSON.stringify(result));
                     result = await git.spawn(
                         ["push", "-u", "origin", "fix-org-references"],
                         {
                             cwd: repo.name,
                         }
                     );
+                    log("Pushing changes", JSON.stringify(result));
                     await client.pulls.create({
                         owner: sourceOrg,
                         repo: repo.name,
@@ -154,6 +179,7 @@ async function main() {
                 }
                 // Get Team Id's
                 teams = [];
+                log("Finding team permissions", JSON.stringify(repo.teams));
                 for (let team of repo.teams) {
                     teamObj = { name: team };
                     let permissionResp;
@@ -172,6 +198,10 @@ async function main() {
                         );
                     } catch (e) {
                         if (e.status === 404) {
+                            log(
+                                "Team did not have permission, adding as read only",
+                                team
+                            );
                             //Team did not have access to repo originally, so giving it read access
                             permissionResp = {
                                 data: {
@@ -197,12 +227,14 @@ async function main() {
                     teams.push(teamObj);
                 }
 
-                await client.repos.transfer({
+                let transferResult = await client.repos.transfer({
                     owner: sourceOrg,
                     repo: repo.name,
                     new_owner: destOrg,
                     team_ids: teams.map((team) => team.id),
                 });
+
+                log("Intiating transfer", JSON.stringify(transferResult));
 
                 sleep(TEN_SECONDS);
                 for (let team of teams) {
@@ -215,6 +247,7 @@ async function main() {
                             permission: getPermissionName(team.permissions),
                         }
                     );
+                    log("Adding team permission", JSON.stringify(resp));
                 }
             } catch (e) {
                 console.error(e);
