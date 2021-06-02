@@ -4,6 +4,7 @@ const { Octokit } = require("@octokit/rest");
 const fs = require("fs");
 const git = require("@npmcli/git");
 const glob = require("glob");
+const { execSync } = require("child_process");
 
 const MyOctokit = Octokit.plugin(throttling).plugin(retry);
 const sleep = (ms) => {
@@ -27,6 +28,12 @@ const getPermissionName = (permissionObj) => {
     } else {
         return null;
     }
+};
+
+const isBinary = (file) => {
+    return execSync(`file -b --mime-type ${file}  | sed 's|/.*||'`, {
+        encoding: "utf-8",
+    }).trim();
 };
 
 async function main() {
@@ -133,7 +140,9 @@ async function main() {
 
                 const files = glob.sync(`${repo.name}/**/*`, { dot: true });
                 const filesToAlter = files.filter((file) => {
-                    if (file.indexOf(".github") > 0) {
+                    if (isBinary(file) !== "text") {
+                        return false;
+                    } else if (file.indexOf(".github") > 0) {
                         return true;
                     } else if (file.indexOf(".git") > 0) {
                         return false;
