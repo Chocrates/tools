@@ -1,0 +1,24 @@
+{
+    "name": "updatebranchprotection",
+    "version": "1.0.0",
+    "description": "",
+    "main": "updateBranchProtection.js",
+    "bin": {
+        "updateBranchProtection": "./updateBranchProtection.js"
+    },
+    "scripts": {
+        "format": "eslint --fix *.js",
+        "pkg": "pkg package.json --out-path ./dist --debug"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "eslint": "^7.8.1",
+        "eslint-config-google": "^0.14.0"
+    },
+    "dependencies": {
+        "@octokit/plugin-throttling": "^3.3.0",
+        "@octokit/rest": "^18.0.4",
+        "pkg": "^4.4.9"
+    }
+}

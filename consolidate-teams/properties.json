@@ -1,0 +1,13 @@
+{
+    "githubUrl": "https://api.github.com",
+    "organization": "",
+    "repos": [],
+    "teams": {
+        "admin": "<repo-name>-owners",
+        "maintain": "<repo-name>-managers",
+        "pull": "<repo-name>-readers",
+        "push": "<repo-name>-developers",
+        "triage": "<repo-name>-triage"
+    },
+    "token": ""
+}
