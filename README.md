@@ -18,3 +18,5 @@ Most deal diredtly with the GitHub API.
   - Useful if you need to track down a bunch of repos with data and you need to contact their owners
 - [transfer-organization](https://github.com/Chocrates/tools/tree/master/transfer-organization)
   - Transfers all repos in the file to the new org and opens a PR changing all references from the old org to the new org
+- [update-branch-protection(https://github.com/Chocrates/tools/tree/main/update-branch-protection)
+  - Adds branch protections to repos specified in the `properties.json` file
