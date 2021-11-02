@@ -10,7 +10,7 @@ This script will delete the list of repositories passed in via a csv file.
 - `token`
   - This is a [Personal Access Token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) with write access to your repositories
 - `file`
-  - A csv file with a header.  See [example.csv] for an example.  Format of each entry should be `owner/repo`
+  - A csv file with a header.  See [example.csv](example.csv) for an example.  Format of each entry should be `owner/repo`
 ## Running
 - `node delete-repositories.js --token <token> --file path/to/file.csv`
 
