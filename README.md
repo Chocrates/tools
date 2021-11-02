@@ -18,3 +18,5 @@ Most deal diredtly with the GitHub API.
   - Useful if you need to track down a bunch of repos with data and you need to contact their owners
 - [transfer-organization](https://github.com/Chocrates/tools/tree/master/transfer-organization)
   - Transfers all repos in the file to the new org and opens a PR changing all references from the old org to the new org
+- [delete-repositories](https://github.com/Chocrates/tools/tree/master/delete-repositories)
+  - Takes a CSV file of owner/repo's and deletes them
