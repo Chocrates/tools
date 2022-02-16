@@ -3,17 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/google/go-github/v33/github"
-	"github.com/thatisuday/commando"
-	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/google/go-github/v42/github"
+	"github.com/thatisuday/commando"
+	"golang.org/x/oauth2"
 )
 
 func main() {
-	token, org, team, template, repoPrefix, userFile := commandoInit()
+	token, org, team, template, repoPrefix, userFile, baseUrl := commandoInit()
 
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
@@ -21,7 +22,18 @@ func main() {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	client := github.NewClient(tc)
+	var client *github.Client
+
+	if baseUrl != "github" {
+		var err error
+		client, err = github.NewEnterpriseClient(baseUrl, baseUrl, tc)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	} else {
+		client = github.NewClient(tc)
+	}
 
 	// read in user list
 	userList, err := readUsers(userFile)
@@ -43,13 +55,14 @@ func main() {
 			repoName := fmt.Sprintf("%s-%s", repoPrefix, user)
 			// create repo from template
 			repo := &github.TemplateRepoRequest{
-				Name:    &repoName,
-				Owner:   &org,
-				Private: github.Bool(true),
+				Name:               &repoName,
+				Owner:              &org,
+				IncludeAllBranches: github.Bool(true),
+				Private:            github.Bool(true),
 			}
 			_, _, err = client.Repositories.CreateFromTemplate(ctx, org, template, repo)
 			if err != nil {
-				if err.(*github.ErrorResponse).Errors[0].Message == "Could not clone: Name already exists on this account" {
+				if len(err.(*github.ErrorResponse).Errors) > 0 && err.(*github.ErrorResponse).Errors[0].Message == "Could not clone: Name already exists on this account" {
 					fmt.Printf("%s exists, skipping\n", repoName)
 				} else {
 					log.Panic("Error Creating repo: ", err)
@@ -71,7 +84,7 @@ func main() {
 	}
 }
 
-func commandoInit() (token, org, team, template, repoPrefix, userFile string) {
+func commandoInit() (token, org, team, template, repoPrefix, userFile, baseUrl string) {
 	// configure commando
 	commando.
 		SetExecutableName("main").
@@ -87,6 +100,7 @@ func commandoInit() (token, org, team, template, repoPrefix, userFile string) {
 		AddFlag("template-repo,r", "Template repo to use for new user repositories", commando.String, nil).
 		AddFlag("repo-prefix,p", "New repo prefix to prepend to user name", commando.String, nil).
 		AddFlag("user-list,u", "Template repo to use for new user repositories", commando.String, nil).
+		AddFlag("base-url,b", "Base URL for GitHub API, defaults to github.com", commando.String, "github").
 		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
 			token = flags["token"].Value.(string)
 			org = flags["organization"].Value.(string)
@@ -94,6 +108,7 @@ func commandoInit() (token, org, team, template, repoPrefix, userFile string) {
 			template = flags["template-repo"].Value.(string)
 			repoPrefix = flags["repo-prefix"].Value.(string)
 			userFile = flags["user-list"].Value.(string)
+			baseUrl = flags["base-url"].Value.(string)
 		})
 
 	// parse command-line arguments
