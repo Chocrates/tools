@@ -17,8 +17,8 @@ enum Commands {
     DeleteRepositories(DeleteRepositories),
 }
 
-#[derive(Args)]
-struct DeleteRepositories {
+#[derive(Args, Clone, Debug)]
+pub struct DeleteRepositories {
     /// Path to CSV file with a single column containing repositories to delete in format
     /// "owner/repository"
     #[clap(short, long, value_parser)]
@@ -30,7 +30,7 @@ fn main() {
 
     match &cli.command {
         Commands::DeleteRepositories(delete_repositories) => {
-            commands::delete_repositories::run();
+            commands::delete_repositories::exec(cli.token, delete_repositories.clone());
         }
     }
 }
