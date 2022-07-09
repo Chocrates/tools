@@ -1,5 +1,7 @@
 mod commands;
 use clap::{Args, Parser, Subcommand};
+use octocrab::*;
+use std::error::Error;
 
 #[derive(Parser)]
 #[clap(author,version,about,long_about=None)]
@@ -25,12 +27,21 @@ pub struct DeleteRepositories {
     file: String,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
+
+    // Build octocrab instance before we pass it to the subcommand
+    let octocrab = Octocrab::builder()
+        .personal_token(cli.token)
+        .build()
+        .expect("Unable to authenticate with token");
 
     match &cli.command {
         Commands::DeleteRepositories(delete_repositories) => {
-            commands::delete_repositories::exec(cli.token, delete_repositories.clone());
+            commands::delete_repositories::exec(octocrab, delete_repositories.clone()).await?;
         }
     }
+
+    Ok(())
 }

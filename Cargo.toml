@@ -9,3 +9,7 @@ description = "Suite of tools used for GitHub Organizaton/Repository management"
 
 [dependencies]
 clap = { version = "3.2.8", features = ["derive"] }
+csv = "1.1.6"
+octocrab = "0.16.0"
+serde = { version = "1.0.138", features = ["derive"] }
+tokio = { version = "1.19.2", features = ["full"] }
