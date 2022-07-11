@@ -1,9 +1,17 @@
-use crate::DeleteRepositories;
+use clap::Args;
 use csv;
 use octocrab::*;
 use serde::Deserialize;
 use std::error::Error;
 use std::fs::File;
+
+#[derive(Args, Clone, Debug)]
+pub struct DeleteRepositories {
+    /// Path to CSV file with a single column containing repositories to delete in format
+    /// "owner/repository"
+    #[clap(short, long, value_parser)]
+    file: String,
+}
 
 #[derive(Debug, Deserialize)]
 struct Record {

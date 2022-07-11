@@ -1,5 +1,6 @@
 mod commands;
 use clap::{Args, Parser, Subcommand};
+use commands::*;
 use octocrab::*;
 use std::error::Error;
 
@@ -16,15 +17,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Delete Repositories contained in csv file
-    DeleteRepositories(DeleteRepositories),
-}
-
-#[derive(Args, Clone, Debug)]
-pub struct DeleteRepositories {
-    /// Path to CSV file with a single column containing repositories to delete in format
-    /// "owner/repository"
-    #[clap(short, long, value_parser)]
-    file: String,
+    DeleteRepositories(delete_repositories::DeleteRepositories),
 }
 
 #[tokio::main]
@@ -39,7 +32,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     match &cli.command {
         Commands::DeleteRepositories(delete_repositories) => {
-            commands::delete_repositories::exec(octocrab, delete_repositories.clone()).await?;
+            delete_repositories::exec(octocrab, delete_repositories.clone()).await?;
         }
     }
 
