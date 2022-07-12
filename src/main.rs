@@ -1,5 +1,5 @@
 mod commands;
-use clap::{Args, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use commands::*;
 use octocrab::*;
 use std::error::Error;
@@ -18,6 +18,9 @@ struct Cli {
 enum Commands {
     /// Delete Repositories contained in csv file
     DeleteRepositories(delete_repositories::DeleteRepositories),
+    /// Consolidates all users in all with access to a repository to the specified teams in a properties file
+    ConsolidateTeams(consolidate_teams::ConsolidateTeams),
+    TransferRepositories(transfer_repositories::TransferRepositories),
 }
 
 #[tokio::main]
@@ -31,8 +34,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .expect("Unable to authenticate with token");
 
     match &cli.command {
-        Commands::DeleteRepositories(delete_repositories) => {
-            delete_repositories::exec(octocrab, delete_repositories.clone()).await?;
+        Commands::DeleteRepositories(delete_repository_args) => {
+            delete_repositories::exec(octocrab, delete_repository_args.clone()).await?;
+        }
+        Commands::ConsolidateTeams(consolidate_teams_args) => {
+            consolidate_teams::exec(octocrab, consolidate_teams_args.clone()).await?
+        }
+        Commands::TransferRepositories(transfer_repository_args) => {
+            transfer_repositories::exec(octocrab, transfer_repository_args.clone()).await?
         }
     }
 

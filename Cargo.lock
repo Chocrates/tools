@@ -1265,7 +1265,9 @@ dependencies = [
  "clap",
  "csv",
  "octocrab",
+ "reqwest",
  "serde",
+ "serde_json",
  "tokio",
 ]
 

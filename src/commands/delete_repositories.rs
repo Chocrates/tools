@@ -29,7 +29,7 @@ pub async fn exec(octocrab: Octocrab, args: DeleteRepositories) -> Result<(), Bo
         let repository = vec[1];
 
         match octocrab.repos(organization, repository).delete().await {
-            Ok(result) => println!("Deleted repository {}/{}", organization, repository),
+            Ok(_) => println!("Deleted repository {}/{}", organization, repository),
             Err(error) => println!(
                 "Error deleting repository {}/{} {}",
                 organization, repository, error
