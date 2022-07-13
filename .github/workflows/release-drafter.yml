@@ -31,7 +31,8 @@ jobs:
           pwd
           ls -al
           ls -al target/
-          ls -al target/x86_64-pc-windows-gnu
+          ls -al target/x86_64-pc-windows-gnu/
+          ls -al target/x86_64-pc-windows-gnu/release
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
@@ -39,6 +40,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./my-artifact.zip
-          asset_name: my-artifact.zip
+          asset_path: ./target/x86_64-pc-windows-gnu/release/github-tools.exe
+          asset_name: github-tools.exe
           asset_content_type: application/zip
