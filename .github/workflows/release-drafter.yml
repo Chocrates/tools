@@ -19,20 +19,15 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: armv7-unknown-linux-gnueabihf
           override: true
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
           args: --release --all-features --target x86_64-pc-windows-gnu
-      - name: debug
+      - name: create zip file
         run: |
-          pwd
-          ls -al
-          ls -al target/
-          ls -al target/x86_64-pc-windows-gnu/
-          ls -al target/x86_64-pc-windows-gnu/release
+          zip github-tools.zip ./target/x86_64-pc-windows-gnu/release/github-tools.exe
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
@@ -40,5 +35,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/x86_64-pc-windows-gnu/release/github-tools.exe
-          asset_name: github-tools.exe
+          asset_path: github-tools.zip
+          asset_name: github-tools.zip
+          asset_content_type: application/zip
