@@ -1,10 +1,7 @@
 use clap::Args;
 use csv;
 use octocrab::*;
-use reqwest::Method;
-use reqwest::Url;
 use serde::*;
-use serde_json::json;
 use std::error::Error;
 use std::fs::File;
 use std::str::FromStr;
@@ -30,6 +27,8 @@ struct Record {
 #[derive(Debug, Clone)]
 enum TeamPermissions {
     Pull,
+    Push,
+    Admin,
 }
 
 impl FromStr for TeamPermissions {
@@ -37,8 +36,16 @@ impl FromStr for TeamPermissions {
     fn from_str(input: &str) -> Result<TeamPermissions, Self::Err> {
         match input.to_lowercase().as_str() {
             "pull" => Ok(TeamPermissions::Pull),
+            "push" => Ok(TeamPermissions::Push),
+            "admin" => Ok(TeamPermissions::Admin),
             _ => Err(()),
         }
+    }
+}
+
+impl std::fmt::Display for TeamPermissions {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 
@@ -49,33 +56,6 @@ struct Teams {
     permissions: TeamPermissions,
     members: Vec<models::User>,
 }
-
-// trait Empty<T> {
-//     fn empty() -> T;
-// }
-
-// impl Empty<models::teams::Team> for models::teams::Team {
-//     fn empty() -> models::teams::Team {
-//         models::teams::Team {
-//             id: models::TeamId::from(1),
-//             node_id: String::default(),
-//             url: Url::parse("https://example.com/").unwrap(),
-//             html_url: Url::parse("https://example.com/").unwrap(),
-//             name: String::default(),
-//             slug: String::default(),
-//             description: None,
-//             privacy: String::default(),
-//             permission: String::default(),
-//             members_url: Url::parse("https://example.com/").unwrap(),
-//             repositories_url: Url::parse("https://example.com/").unwrap(),
-//             members_count: None,
-//             repos_count: None,
-//             created_at: None,
-//             updated_at: None,
-//             organization: None,
-//         }
-//     }
-// }
 
 pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dyn Error>> {
     let file = File::open(args.file)?;
@@ -113,38 +93,19 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
             teams.push(team.clone());
         }
 
-        // Transfer Team to new org
-        // Do this without the new teams so we can make sure to add them with proper permission
-        let body = reqwest::Body::from(format!("{{\"new_owner\":\"{}\"}}", args.organization));
-        match oc
-            .request_builder(
-                oc.absolute_url(format!("/repos/{}/{}/transfer", organization, repository))?,
-                reqwest::Method::POST,
-            )
-            .body(body)
-            .send()
-            .await
-        {
-            Ok(_) => {}
-            Err(error) => {
-                panic!("Unknown error: {}", &error);
-            }
-        }
-
-        // for team in teams
+        let mut new_teams = Vec::<models::teams::Team>::new();
         for t in teams.iter() {
-            let mut new_team: models::teams::Team;
+            let new_team: models::teams::Team;
 
             // determine if team with this name exists in new org
             match oc.teams(&args.organization).get(&t.slug).await {
                 Ok(team) => {
                     new_team = team;
-                    println!("Found an existing team");
                 } // don't need to create the team
                 Err(error) => match error {
                     octocrab::Error::GitHub {
                         ref source,
-                        ref backtrace,
+                        backtrace: _,
                     } => {
                         if source.message == "Not Found" {
                             new_team = oc
@@ -154,7 +115,6 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
                                 .send()
                                 .await
                                 .expect("Team Creation Failed");
-                            println!("Created the new team!");
                         } else {
                             panic!("Unknown error: {}", &error);
                         }
@@ -165,14 +125,13 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
 
             // add users to team
             for user in t.members.iter() {
-                println!("User: {}", user.login);
                 let body = reqwest::Body::from("{\"role\":\"member\"}");
 
                 match oc
                     .request_builder(
                         oc.absolute_url(format!(
                             "/orgs/{}/teams/{}/memberships/{}",
-                            args.organization, t.slug, user.login
+                            args.organization, new_team.slug, user.login
                         ))?,
                         reqwest::Method::PUT,
                     )
@@ -182,11 +141,76 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
                 {
                     // Users that are not in the org will still return an HTTP 200, so all errors
                     // are going to be unrecoverable and thrown to the user
-                    Ok(res) => {}
+                    Ok(_) => {}
                     Err(error) => {
                         panic!("Unknown error {}", &error);
                     }
                 }
+            }
+
+            // let body = reqwest::Body::from(format!(
+            //     "{{\"permission\":\"{}\"}}",
+            //     t.permissions.to_string()
+            // ));
+
+            // match oc
+            //     .request_builder(
+            //         oc.absolute_url(format!(
+            //             "/orgs/{}/teams/{}/repos/{}/{}",
+            //             args.organization, new_team.slug, args.organization, repository
+            //         ))?,
+            //         reqwest::Method::PUT,
+            //     )
+            //     .body(body)
+            //     .send()
+            //     .await
+            // {
+            //     Ok(res) => {
+            //         println!("{:?}", res);
+            //         println!("Should have added the team to the new repo");
+            //         println!(
+            //             "{}",
+            //             format!(
+            //                 "/orgs/{}/teams/{}/repos/{}/{}",
+            //                 args.organization, new_team.slug, args.organization, repository
+            //             )
+            //         );
+            //     }
+            //     Err(error) => {
+            //         println!(
+            //             "Error received after trying to add {}/{} to {:?}",
+            //             &args.organization, &repository, &error
+            //         );
+            //     }
+            // }
+            new_teams.push(new_team);
+        }
+        let team_ids = new_teams
+            .iter()
+            .map(|t| format!("{},", t.id))
+            .collect::<String>();
+        // Transfer Team to new org
+        // Teams will not have proper permissions
+        let body = reqwest::Body::from(format!(
+            "{{\"new_owner\":\"{}\", \"team_ids\":[{}]}}",
+            args.organization,
+            &team_ids[0..team_ids.len() - 1]
+        ));
+
+        match oc
+            .request_builder(
+                oc.absolute_url(format!("/repos/{}/{}/transfer", organization, repository))?,
+                reqwest::Method::POST,
+            )
+            .body(body)
+            .send()
+            .await
+        {
+            Ok(_) => {
+                println!("Transferred: {}/{}", args.organization, repository);
+            }
+            Err(error) => {
+                panic!("Unknown error: {}", &error);
             }
         }
     }
