@@ -9,9 +9,13 @@ description = "Suite of tools used for GitHub Organizaton/Repository management"
 
 [dependencies]
 clap = { version = "3.2.8", features = ["derive"] }
+cross = "0.2.4"
 csv = "1.1.6"
 octocrab = "0.16.0"
 reqwest = "0.11.11"
 serde = { version = "1.0.138", features = ["derive"] }
 serde_json = "1.0.82"
 tokio = { version = "1.19.2", features = ["full"] }
+
+[profile.release]
+lto = "thin"
