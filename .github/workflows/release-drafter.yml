@@ -42,4 +42,3 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./target/x86_64-pc-windows-gnu/release/github-tools.exe
           asset_name: github-tools.exe
-          asset_content_type: application/zip
