@@ -31,7 +31,7 @@ jobs:
           pwd
           ls -al
           ls -al target/
-          ls -al target/release
+          ls -al target/x86_64-pc-windows-gnu
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
