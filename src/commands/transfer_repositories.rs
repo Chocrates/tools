@@ -113,7 +113,23 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
             teams.push(team.clone());
         }
 
-        // println!("{:?}", teams);
+        // Transfer Team to new org
+        // Do this without the new teams so we can make sure to add them with proper permission
+        let body = reqwest::Body::from(format!("{{\"new_owner\":\"{}\"}}", args.organization));
+        match oc
+            .request_builder(
+                oc.absolute_url(format!("/repos/{}/{}/transfer", organization, repository))?,
+                reqwest::Method::POST,
+            )
+            .body(body)
+            .send()
+            .await
+        {
+            Ok(_) => {}
+            Err(error) => {
+                panic!("Unknown error: {}", &error);
+            }
+        }
 
         // for team in teams
         for t in teams.iter() {
