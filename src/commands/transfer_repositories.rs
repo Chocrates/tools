@@ -1,6 +1,7 @@
 use clap::Args;
 use csv;
 use octocrab::*;
+use reqwest::Method;
 use reqwest::Url;
 use serde::*;
 use serde_json::json;
@@ -142,41 +143,36 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
                             panic!("Unknown error: {}", &error);
                         }
                     }
-                    _ => panic!("Unknown error"),
+                    _ => panic!("Unknown error: {}", &error),
                 },
             };
 
             // add users to team
             for user in t.members.iter() {
                 println!("User: {}", user.login);
-                println!(
-                    "{}",
-                    oc.absolute_url(format!(
-                        "/orgs/{}/teams/{}/memberships/{}",
-                        args.organization, t.slug, user.login
-                    ))?
-                );
-                oc.put(
-                    oc.absolute_url(format!(
-                        "/orgs/{}/teams/{}/memberships/{}",
-                        args.organization, t.slug, user.login
-                    ))?,
-                    // Some(&serde_json::json!({
-                    //     "role": "member",
-                    // })),
-                    None::<&()>,
-                )
-                .await?;
+                let body = reqwest::Body::from("{\"role\":\"member\"}");
+
+                match oc
+                    .request_builder(
+                        oc.absolute_url(format!(
+                            "/orgs/{}/teams/{}/memberships/{}",
+                            args.organization, t.slug, user.login
+                        ))?,
+                        reqwest::Method::PUT,
+                    )
+                    .body(body)
+                    .send()
+                    .await
+                {
+                    // Users that are not in the org will still return an HTTP 200, so all errors
+                    // are going to be unrecoverable and thrown to the user
+                    Ok(res) => {}
+                    Err(error) => {
+                        panic!("Unknown error {}", &error);
+                    }
+                }
             }
         }
-
-        // match octocrab.repos(organization, repository).delete().await {
-        //     Ok(_) => println!("Deleted repository {}/{}", organization, repository),
-        //     Err(error) => println!(
-        //         "Error deleting repository {}/{} {}",
-        //         organization, repository, error
-        //     ),
-        // }
     }
     Ok(())
 }
