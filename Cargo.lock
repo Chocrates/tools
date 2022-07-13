@@ -306,6 +306,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78cc372d058dcf6d5ecd98510e7fbc9e5aec4d21de70f65fea8fecebcd881bd4"
 
 [[package]]
+name = "github-tools"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "csv",
+ "octocrab",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "h2"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1256,19 +1269,6 @@ dependencies = [
  "pin-project-lite",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "tools"
-version = "0.1.0"
-dependencies = [
- "clap",
- "csv",
- "octocrab",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]

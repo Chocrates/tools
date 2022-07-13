@@ -20,6 +20,9 @@ enum Commands {
     DeleteRepositories(delete_repositories::DeleteRepositories),
     /// Consolidates all users in all with access to a repository to the specified teams in a properties file
     ConsolidateTeams(consolidate_teams::ConsolidateTeams),
+    /// Transfer repositories contained in csv file to new org, including teams and members
+    /// NOTE: Team permissions are not maintained and will be transfered as read
+    /// See: https://docs.github.com/en/rest/repos/repos#transfer-a-repository
     TransferRepositories(transfer_repositories::TransferRepositories),
 }
 
