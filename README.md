@@ -1,6 +1,19 @@
 # Tools
+*Note:* This repository is currently in flux, getting rewritten in Rust.  Leaving the historical README below and I will remove it once the rewrite is more mature
 This repository holds a number of scripts to assist in administering and migrating GitHub repositories and Organizations
 Most deal diredtly with the GitHub API.
+
+## Installation
+### From Binaries
+You can find the binaries for your system in the releases section.
+Download the zip and extract to your file system.  You can then use the binary.
+
+### From Source  
+- Install the Rust toolchain.  Follow the [instructions](https://www.rust-lang.org/tools/install) on their website.
+- Clone the code down to your machine
+- `cargo build`
+
+---
 
 ## Scripts
 - [create-repos-from-template](https://github.com/Chocrates/tools/tree/master/create-repos-from-template)
