@@ -33,7 +33,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
+          tag: ${{ github.sha }}
           file: github-tools-windows.zip
           asset_name: github-tools-windows.zip
           overwrite: true
@@ -51,7 +51,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
+          tag: ${{ github.sha }}
           file: github-tools-linux.zip
           asset_name: github-tools-linux.zip
           overwrite: true
@@ -69,7 +69,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
+          tag: ${{ github.sha }}
           file: github-tools-macos.zip
           asset_name: github-tools-macos.zip
           overwrite: true
