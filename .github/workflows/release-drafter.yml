@@ -28,16 +28,16 @@ jobs:
       - name: create zip file
         run: |
           zip -j github-tools-windows.zip ./target/x86_64-pc-windows-gnu/release/github-tools.exe
-      - name: Upload Windows Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Upload windows binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: github-tools-windows.zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          file: github-tools-windows.zip
           asset_name: github-tools-windows.zip
-          asset_content_type: application/zip
+          overwrite: true
+        
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
@@ -46,15 +46,16 @@ jobs:
       - name: create zip file
         run: |
           zip -j github-tools-linux.zip ./target/x86_64-unknown-linux-gnu/release/github-tools.exe
-      - name: Upload Linux Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload linux binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: github-tools-linux.zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          file: github-tools-linux.zip
           asset_name: github-tools-linux.zip
-          asset_content_type: application/zip      
+          overwrite: true
+          
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
@@ -63,12 +64,12 @@ jobs:
       - name: create zip file
         run: |
           zip -j github-tools-macos.zip ./target/x86_64-apple-darwin/release/github-tools.exe
-      - name: Upload Linux Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload macos binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: github-tools-macos.zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          file: github-tools-macos.zip
           asset_name: github-tools-macos.zip
-          asset_content_type: application/zip
+          overwrite: true
