@@ -21,6 +21,10 @@ pub struct TransferRepositories {
     /// This data can be saved and edited to create your input file
     #[clap(short, long, value_parser)]
     example: bool,
+
+    /// Enables actions on the transfered repositories
+    #[clap(short = 'a', long, value_parser)]
+    enable_actions: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -165,58 +169,28 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
                     }
                 }
 
-                // let body = reqwest::Body::from(format!(
-                //     "{{\"permission\":\"{}\"}}",
-                //     t.permissions.to_string()
-                // ));
-
-                // match oc
-                //     .request_builder(
-                //         oc.absolute_url(format!(
-                //             "/orgs/{}/teams/{}/repos/{}/{}",
-                //             args.organization, new_team.slug, args.organization, repository
-                //         ))?,
-                //         reqwest::Method::PUT,
-                //     )
-                //     .body(body)
-                //     .send()
-                //     .await
-                // {
-                //     Ok(res) => {
-                //         println!("{:?}", res);
-                //         println!("Should have added the team to the new repo");
-                //         println!(
-                //             "{}",
-                //             format!(
-                //                 "/orgs/{}/teams/{}/repos/{}/{}",
-                //                 args.organization, new_team.slug, args.organization, repository
-                //             )
-                //         );
-                //     }
-                //     Err(error) => {
-                //         println!(
-                //             "Error received after trying to add {}/{} to {:?}",
-                //             &args.organization, &repository, &error
-                //         );
-                //     }
-                // }
                 new_teams.push(new_team);
             }
+
             let team_ids = new_teams
                 .iter()
-                .map(|t| format!("{},", t.id))
-                .collect::<String>();
+                .map(|t| format!("{}", t.id))
+                .collect::<Vec<String>>()
+                .join(",");
+
             // Transfer Team to new org
             // Teams will not have proper permissions
             let body = reqwest::Body::from(format!(
                 "{{\"new_owner\":\"{}\", \"team_ids\":[{}]}}",
-                target_organization,
-                &team_ids[0..team_ids.len() - 1]
+                target_organization, &team_ids
             ));
 
             match oc
                 .request_builder(
-                    oc.absolute_url(format!("/repos/{}/{}/transfer", organization, repository))?,
+                    oc.absolute_url(format!(
+                        "/repos/{}/{}/transfer",
+                        target_organization, repository
+                    ))?,
                     reqwest::Method::POST,
                 )
                 .body(body)
@@ -228,6 +202,30 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
                 }
                 Err(error) => {
                     panic!("Unknown error: {}", &error);
+                }
+            }
+
+            if args.enable_actions {
+                // Enable Actions
+                let body = reqwest::Body::from("{\"enabled\": true}");
+                match oc
+                    .request_builder(
+                        oc.absolute_url(format!(
+                            "/repos/{}/{}/actions/permissions",
+                            target_organization, repository
+                        ))?,
+                        reqwest::Method::PUT,
+                    )
+                    .body(body)
+                    .send()
+                    .await
+                {
+                    // Users that are not in the org will still return an HTTP 200, so all errors
+                    // are going to be unrecoverable and thrown to the user
+                    Ok(_) => {}
+                    Err(error) => {
+                        panic!("Unknown error {}", &error);
+                    }
                 }
             }
         }
