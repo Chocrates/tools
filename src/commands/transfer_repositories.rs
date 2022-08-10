@@ -187,10 +187,7 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
 
             match oc
                 .request_builder(
-                    oc.absolute_url(format!(
-                        "/repos/{}/{}/transfer",
-                        target_organization, repository
-                    ))?,
+                    oc.absolute_url(format!("/repos/{}/{}/transfer", organization, repository))?,
                     reqwest::Method::POST,
                 )
                 .body(body)
