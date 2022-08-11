@@ -86,8 +86,8 @@ jobs:
 
       - name: Build macOS
         run: |
-          PATH="$(pwd)/osxcross/target/bin:$PATH"
-          cargo build --target x86_64-apple-darwin
+          PATH="$(pwd)/osxcross/target/bin:$PATH" \
+          cargo build --target x86_64-apple-darwin --release --all-features
           
       - name: create zip file
         run: |
