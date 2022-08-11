@@ -49,7 +49,7 @@ jobs:
           args: --release --all-features --target x86_64-unknown-linux-gnu
       - name: create zip file
         run: |
-          zip -j github-tools-linux.zip ./target/x86_64-unknown-linux-gnu/release/github-tools.exe
+          zip -j github-tools-linux.zip ./target/x86_64-unknown-linux-gnu/release/github-tools
 
       - name: Upload linux binaries to release
         uses: svenstaro/upload-release-action@v2
@@ -67,7 +67,7 @@ jobs:
           args: --release --all-features --target x86_64-apple-darwin
       - name: create zip file
         run: |
-          zip -j github-tools-macos.zip ./target/x86_64-apple-darwin/release/github-tools.exe
+          zip -j github-tools-macos.zip ./target/x86_64-apple-darwin/release/github-tools
       
       - name: Upload macos binaries to release
         uses: svenstaro/upload-release-action@v2
