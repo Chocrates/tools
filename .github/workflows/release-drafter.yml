@@ -72,21 +72,22 @@ jobs:
       - name: Prepare macOS build tools
         run: |
           rustup target add x86_64-apple-darwin
-          mkdir -p .cargo
-          cat <<EOF > .cargo/config
+          mkdir -p ~/.cargo
+          cat <<EOF > ~/.cargo/config
           [target.x86_64-apple-darwin]
-          linker = "x86_64-apple-darwin14-clang"
-          ar = "x86_64-apple-darwin14-ar"
+          linker = "x86_64-apple-darwin15-cc"
+          ar = "x86_64-apple-darwin15-ar"
           EOF
+          cat ~/.cargo/config
           git clone https://github.com/tpoechtrager/osxcross
           cd osxcross
-          wget -nc https://s3.dockerproject.org/darwin/v2/MacOSX10.10.sdk.tar.xz
-          mv MacOSX10.10.sdk.tar.xz tarballs/
+          wget https://s3.dockerproject.org/darwin/v2/MacOSX10.11.sdk.tar.xz
+          mv MacOSX10.11.sdk.tar.xz tarballs/
           UNATTENDED=yes OSX_VERSION_MIN=10.7 ./build.sh
 
       - name: Build macOS
         run: |
-          PATH="$(pwd)/osxcross/target/bin:$PATH" \
+          PATH="$(pwd)/osxcross/target/bin:$PATH"; CC=x86_64-apple-darwin15-cc \
           cargo build --target x86_64-apple-darwin --release --all-features
           
       - name: create zip file
