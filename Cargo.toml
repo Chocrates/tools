@@ -19,6 +19,3 @@ tokio = { version = "1.19.2", features = ["full"] }
 
 [profile.release]
 lto = "thin"
-
-[target.x86_64-unknown-linux-gnu]
-dockerfile = "./Dockerfile"
