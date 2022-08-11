@@ -12,7 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       # Drafts your next Release notes as Pull Requests are merged into "master"
-      - run: sudo apt install -y libssl-dev pkg-config
+      - run: |
+          sudo apt install -y libssl-dev pkg-config
+          ldd --version
+          
       - uses: release-drafter/release-drafter@v5
         id: create_release
         env:
