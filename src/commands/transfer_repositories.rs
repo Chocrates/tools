@@ -5,6 +5,7 @@ use serde::*;
 use std::error::Error;
 use std::fs::File;
 use std::str::FromStr;
+use std::{thread, time};
 
 #[derive(Args, Clone, Debug)]
 pub struct TransferRepositories {
@@ -203,6 +204,9 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
             }
 
             if args.enable_actions {
+                let one_second = time::Duration::from_millis(1000);
+
+                thread::sleep(one_second);
                 // Enable Actions
                 let body = reqwest::Body::from("{\"enabled\": true}");
                 match oc
@@ -219,7 +223,9 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
                 {
                     // Users that are not in the org will still return an HTTP 200, so all errors
                     // are going to be unrecoverable and thrown to the user
-                    Ok(_) => {}
+                    Ok(res) => {
+                        println!("{:?}", res);
+                    }
                     Err(error) => {
                         panic!("Unknown error {}", &error);
                     }
