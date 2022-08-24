@@ -38,6 +38,8 @@ struct Record {
 enum TeamPermissions {
     Pull,
     Push,
+    Maintain,
+    Triage,
     Admin,
 }
 
@@ -45,8 +47,10 @@ impl FromStr for TeamPermissions {
     type Err = ();
     fn from_str(input: &str) -> Result<TeamPermissions, Self::Err> {
         match input.to_lowercase().as_str() {
-            "pull" => Ok(TeamPermissions::Pull),
-            "push" => Ok(TeamPermissions::Push),
+            "read" => Ok(TeamPermissions::Pull),
+            "write" => Ok(TeamPermissions::Push),
+            "maintain" => Ok(TeamPermissions::Maintain),
+            "triage" => Ok(TeamPermissions::Triage),
             "admin" => Ok(TeamPermissions::Admin),
             _ => Err(()),
         }
@@ -95,10 +99,18 @@ pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dy
                 .await?;
 
             for t in response.iter() {
+                let permission = match TeamPermissions::from_str(&t.permission) {
+                    Ok(permission) => permission,
+                    Err(_) => {
+                        println!("Invalid permission {} for team {}", t.permission, t.name);
+                        TeamPermissions::Pull
+                    }
+                };
+
                 let mut team = Teams {
                     name: t.name.clone(),
                     slug: t.slug.clone(),
-                    permissions: TeamPermissions::from_str(&t.permission).unwrap(),
+                    permissions: permission,
                     members: Vec::<models::User>::new(),
                 };
 
