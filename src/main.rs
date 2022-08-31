@@ -24,6 +24,8 @@ enum Commands {
     /// NOTE: Team permissions are not maintained and will be transfered as read
     /// See: https://docs.github.com/en/rest/repos/repos#transfer-a-repository
     TransferRepositories(transfer_repositories::TransferRepositories),
+    /// Get all issues with specified tag
+    GetIssues(get_issues::GetIssues),
 }
 
 #[tokio::main]
@@ -45,6 +47,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         Commands::TransferRepositories(transfer_repository_args) => {
             transfer_repositories::exec(octocrab, transfer_repository_args.clone()).await?
+        }
+        Commands::GetIssues(get_issues_args) => {
+            get_issues::exec(octocrab, get_issues_args.clone()).await?
         }
     }
 
