@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let octocrab = Octocrab::builder()
         .personal_token(cli.token)
         .build()
-        .expect("Unable to authenticate with token");
+        .expect("Unable to build Octocrab instance");
 
     match &cli.command {
         Commands::DeleteRepositories(delete_repository_args) => {
