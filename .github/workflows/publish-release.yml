@@ -1,8 +1,8 @@
 name: Publish Latest Draft Release
 
-#on:
-#  schedule:
-#    - cron: '56 13 * * *'
+on:
+  schedule:
+    - cron: '56 13 * * *'
 
 jobs:
   publish-release:
