@@ -1,3 +1,4 @@
+use crate::utility;
 use clap::Args;
 use csv;
 use octocrab::*;
@@ -7,6 +8,10 @@ use std::fs::File;
 
 #[derive(Args, Clone, Debug)]
 pub struct DeleteRepositories {
+    /// GitHub Personal Access Token with access to Organization or Repositories
+    #[clap(short, long, value_parser)]
+    token: String,
+
     /// Path to CSV file with a single column containing repositories to delete in format
     /// "owner/repository"
     #[clap(short, long, value_parser)]
@@ -19,7 +24,8 @@ struct Record {
     repository: String,
 }
 
-pub async fn exec(octocrab: Octocrab, args: DeleteRepositories) -> Result<(), Box<dyn Error>> {
+pub async fn exec(args: DeleteRepositories) -> Result<(), Box<dyn Error>> {
+    let octocrab = utility::build_octocrab(args.token);
     let file = File::open(args.file)?;
     let mut csv_reader = csv::Reader::from_reader(file);
     for result in csv_reader.deserialize() {
