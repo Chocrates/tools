@@ -43,7 +43,7 @@ jobs:
           zip -j github-tools-windows.zip ./target/x86_64-pc-windows-gnu/release/github-tools.exe
           
       - name: Upload windows binaries to release
-        run: gh release upload ${{ steps.create_release.outputs.tag_name }} github-tools-windows.zip
+        run: gh release upload --clobber ${{ steps.create_release.outputs.tag_name }} github-tools-windows.zip
         
       - uses: actions-rs/cargo@v1
         with:
@@ -55,7 +55,7 @@ jobs:
           zip -j github-tools-linux.zip ./target/x86_64-unknown-linux-gnu/release/github-tools
 
       - name: Upload linux binaries to release
-        run: gh release upload ${{ steps.create_release.outputs.tag_name }} github-tools-linux.zip
+        run: gh release upload --clobber ${{ steps.create_release.outputs.tag_name }} github-tools-linux.zip
           
       - name: Prepare macOS build tools
         run: |
@@ -83,4 +83,4 @@ jobs:
           zip -j github-tools-macos.zip ./target/x86_64-apple-darwin/release/github-tools
       
       - name: Upload macOS binaries to release
-        run: gh release upload ${{ steps.create_release.outputs.tag_name }} github-tools-macos.zip
+        run: gh release upload --clobber ${{ steps.create_release.outputs.tag_name }} github-tools-macos.zip
