@@ -43,13 +43,7 @@ jobs:
           zip -j github-tools-windows.zip ./target/x86_64-pc-windows-gnu/release/github-tools.exe
           
       - name: Upload windows binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.create_release.outputs.tag_name }}
-          file: github-tools-windows.zip
-          asset_name: github-tools-windows.zip
-          overwrite: true
+        run: gh release upload ${{ steps.create_release.outputs.tag_name }} github-tools-windows.zip
         
       - uses: actions-rs/cargo@v1
         with:
@@ -61,13 +55,7 @@ jobs:
           zip -j github-tools-linux.zip ./target/x86_64-unknown-linux-gnu/release/github-tools
 
       - name: Upload linux binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.create_release.outputs.tag_name }}
-          file: github-tools-linux.zip
-          asset_name: github-tools-linux.zip
-          overwrite: true
+        run: gh release upload ${{ steps.create_release.outputs.tag_name }} github-tools-linux.zip
           
       - name: Prepare macOS build tools
         run: |
@@ -94,11 +82,5 @@ jobs:
         run: |
           zip -j github-tools-macos.zip ./target/x86_64-apple-darwin/release/github-tools
       
-      - name: Upload macos binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.create_release.outputs.tag_name }}
-          file: github-tools-macos.zip
-          asset_name: github-tools-macos.zip
-          overwrite: true
+      - name: Upload macOS binaries to release
+        run: gh release upload ${{ steps.create_release.outputs.tag_name }} github-tools-macos.zip
