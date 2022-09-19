@@ -2,6 +2,7 @@ use crate::utility;
 use clap::Args;
 use csv;
 use octocrab::*;
+use reqwest::StatusCode;
 use serde::*;
 use std::error::Error;
 use std::fs::File;
@@ -63,7 +64,7 @@ pub async fn exec(args: EnableActions) -> Result<(), Box<dyn Error>> {
                 // Users that are not in the org will still return an HTTP 200, so all errors
                 // are going to be unrecoverable and thrown to the user
                 Ok(res) => {
-                    if res.status() < 200 || res.status() > 210 {
+                    if res.status() == StatusCode::OK {
                         println!("{:?}", res);
                     } else {
                         println!("Actions enabled for {}/{}", organization, repository);
