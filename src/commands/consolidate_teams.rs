@@ -1,3 +1,4 @@
+use crate::utility;
 use clap::Args;
 use octocrab::*;
 use serde::{Deserialize, Serialize};
@@ -6,6 +7,10 @@ use std::error::Error;
 
 #[derive(Args, Clone, Debug)]
 pub struct ConsolidateTeams {
+    /// GitHub Personal Access Token with access to Organization or Repositories
+    #[clap(short, long, value_parser)]
+    token: Option<String>,
+
     /// Path to properties file containing run configuration
     #[clap(short, long, value_parser)]
     file: Option<String>,
@@ -21,7 +26,7 @@ struct Properties {
     name: String,
 }
 
-pub async fn exec(_octocrab: Octocrab, args: ConsolidateTeams) -> Result<(), Box<dyn Error>> {
+pub async fn exec(args: ConsolidateTeams) -> Result<(), Box<dyn Error>> {
     if args.example {
         let props = Properties {
             repositories: vec!["test string".to_string()],
@@ -29,6 +34,10 @@ pub async fn exec(_octocrab: Octocrab, args: ConsolidateTeams) -> Result<(), Box
         };
         println!("{}", json!(props).to_string());
     } else {
+        let token = args.token.ok_or_else(|| {
+            String::from("Personal Access Token is required when example is not used")
+        })?;
+        let _octocrab = utility::build_octocrab(token);
         println!("Section that deals with files");
     }
 

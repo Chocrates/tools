@@ -1,4 +1,5 @@
 mod commands;
+mod utility;
 use clap::{Parser, Subcommand};
 use commands::*;
 use octocrab::*;
@@ -9,9 +10,6 @@ use std::error::Error;
 struct Cli {
     #[clap(subcommand)]
     command: Commands,
-    /// GitHub Personal Access Token with access to Organization or Repositories
-    #[clap(short, long, value_parser)]
-    token: String,
 }
 
 #[derive(Subcommand)]
@@ -31,25 +29,18 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
-
-    // Build octocrab instance before we pass it to the subcommand
-    let octocrab = Octocrab::builder()
-        .personal_token(cli.token)
-        .build()
-        .expect("Unable to build Octocrab instance");
-
     match &cli.command {
         Commands::DeleteRepositories(delete_repository_args) => {
-            delete_repositories::exec(octocrab, delete_repository_args.clone()).await?;
+            delete_repositories::exec(delete_repository_args.clone()).await?;
         }
         Commands::ConsolidateTeams(consolidate_teams_args) => {
-            consolidate_teams::exec(octocrab, consolidate_teams_args.clone()).await?
+            consolidate_teams::exec(consolidate_teams_args.clone()).await?
         }
         Commands::TransferRepositories(transfer_repository_args) => {
-            transfer_repositories::exec(octocrab, transfer_repository_args.clone()).await?
+            transfer_repositories::exec(transfer_repository_args.clone()).await?
         }
         Commands::EnableActions(enable_actions_args) => {
-            enable_actions::exec(octocrab, enable_actions_args.clone()).await?
+            enable_actions::exec(enable_actions_args.clone()).await?
         }
     }
 

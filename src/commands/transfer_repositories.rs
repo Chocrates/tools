@@ -1,3 +1,4 @@
+use crate::utility;
 use clap::Args;
 use csv;
 use octocrab::*;
@@ -9,6 +10,10 @@ use std::{thread, time};
 
 #[derive(Args, Clone, Debug)]
 pub struct TransferRepositories {
+    /// GitHub Personal Access Token with access to Organization or Repositories
+    #[clap(short, long, value_parser)]
+    token: Option<String>,
+
     /// Path to CSV file with a single column containing repositories to delete in format
     /// "owner/repository"
     #[clap(short, long, value_parser)]
@@ -72,10 +77,14 @@ struct Teams {
     members: Vec<models::User>,
 }
 
-pub async fn exec(oc: Octocrab, args: TransferRepositories) -> Result<(), Box<dyn Error>> {
+pub async fn exec(args: TransferRepositories) -> Result<(), Box<dyn Error>> {
     if args.example {
         println!("repository\norganization/repository");
     } else {
+        let token = args.token.ok_or_else(|| {
+            String::from("Personal Access Token is required when example is not used")
+        })?;
+        let oc = utility::build_octocrab(token);
         let path = args
             .file
             .ok_or_else(|| String::from("File is required when example is false"))?;
