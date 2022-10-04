@@ -1,0 +1,24 @@
+name: Publish Latest Draft Release
+
+on:
+  schedule:
+    - cron: '56 13 * * *'
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Find latest draft release
+        id: find-release
+        run: |
+          echo "::set-output name=release-id::$(curl -s \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/$REPO/releases \
+            | jq '.[] |= select(.draft == true) | sort_by(.created_at) | reverse | first | .id')"
+      - uses: eregon/publish-release@v1
+        with:
+          release_id: ${{ steps.find-release.outputs.release-id }}

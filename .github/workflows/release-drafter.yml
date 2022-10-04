@@ -1,0 +1,88 @@
+name: Release Drafter
+
+on:
+  push:
+    # branches to consider in the event; optional, defaults to all
+    branches:
+      - main
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      # Drafts your next Release notes as Pull Requests are merged into "master"
+      - run: |
+          sudo apt update && sudo apt install -y \
+          libssl-dev \
+          pkg-config \
+          clang \
+          gcc \
+          g++ \
+          zlib1g-dev \
+          libmpc-dev \
+          libmpfr-dev \
+          libgmp-dev \
+          cmake
+          
+      - uses: release-drafter/release-drafter@v5
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --all-features --target x86_64-pc-windows-gnu
+      - name: create zip file
+        run: |
+          zip -j github-tools-windows.zip ./target/x86_64-pc-windows-gnu/release/github-tools.exe
+          
+      - name: Upload windows binaries to release
+        run: gh release upload --clobber ${{ steps.create_release.outputs.tag_name }} github-tools-windows.zip
+        
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --all-features --target x86_64-unknown-linux-gnu
+      - name: create zip file
+        run: |
+          zip -j github-tools-linux.zip ./target/x86_64-unknown-linux-gnu/release/github-tools
+
+      - name: Upload linux binaries to release
+        run: gh release upload --clobber ${{ steps.create_release.outputs.tag_name }} github-tools-linux.zip
+          
+      - name: Prepare macOS build tools
+        run: |
+          rustup target add x86_64-apple-darwin
+          mkdir -p ~/.cargo
+          cat <<EOF > ~/.cargo/config
+          [target.x86_64-apple-darwin]
+          linker = "x86_64-apple-darwin15-cc"
+          ar = "x86_64-apple-darwin15-ar"
+          EOF
+          cat ~/.cargo/config
+          git clone https://github.com/tpoechtrager/osxcross
+          cd osxcross
+          wget https://s3.dockerproject.org/darwin/v2/MacOSX10.11.sdk.tar.xz
+          mv MacOSX10.11.sdk.tar.xz tarballs/
+          UNATTENDED=yes OSX_VERSION_MIN=10.7 ./build.sh
+
+      - name: Build macOS
+        run: |
+          PATH="$(pwd)/osxcross/target/bin:$PATH"; CC=x86_64-apple-darwin15-cc \
+          cargo build --target x86_64-apple-darwin --release --all-features
+          
+      - name: create zip file
+        run: |
+          zip -j github-tools-macos.zip ./target/x86_64-apple-darwin/release/github-tools
+      
+      - name: Upload macOS binaries to release
+        run: gh release upload --clobber ${{ steps.create_release.outputs.tag_name }} github-tools-macos.zip
