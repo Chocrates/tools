@@ -4,7 +4,6 @@ name: CI
 
 jobs:
   build_and_test:
-    needs: new_job
     name: Rust project
     runs-on: ubuntu-latest
     steps:
