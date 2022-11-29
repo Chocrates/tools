@@ -15,8 +15,3 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-  new_job:
-    runs-on: [self-hosted, x86, Linux]
-    steps:
-      - run: |
-          echo "hello world"
