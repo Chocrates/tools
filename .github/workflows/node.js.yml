@@ -8,11 +8,31 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.output-step.outputs.outputname }}
+    
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
       with:
         node-version: '16'
+    - id: output-step
+      run: echo "outputname=hello" >> "$GITHUB_OUTPUT"
+    - run: npm install @octokit/plugin-throttling @octokit/plugin-retry @octokit/rest
     - run: node ./get-issues/main.js --token ${{ secrets.GITHUB_TOKEN }} --owners Chocrates --repo tools
+
+    
+  second-job:
+    name: This is the Second Job
+    runs-on: ubuntu-latest
+    needs: build
+    continue-on-error: true
+    steps:
+    - name: This is the First Step in the Second Job
+      run: |
+        echo "Hello World"
+        pwd
+        ls -al
+        echo "Output: ${{needs.build.outputs.output1}}"
+      
