@@ -24,6 +24,8 @@ enum Commands {
     TransferRepositories(transfer_repositories::TransferRepositories),
     /// Enable GitHub Actions on repositories contained in csv file
     EnableActions(enable_actions::EnableActions),
+    /// Get GitHub App Installation Token for specified organization
+    GetAppToken(get_app_token::GetAppToken),
 }
 
 #[tokio::main]
@@ -41,6 +43,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         Commands::EnableActions(enable_actions_args) => {
             enable_actions::exec(enable_actions_args.clone()).await?
+        }
+        Commands::GetAppToken(get_app_token_args) => {
+            get_app_token::exec(get_app_token_args.clone()).await?
         }
     }
 

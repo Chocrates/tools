@@ -8,7 +8,10 @@
 		"vscode": {
 			"extensions": [
 				"GitHub.copilot",
-				"GitHub.copilot-chat"
+				"GitHub.copilot-chat",
+				"rust-lang.rust-analyzer",
+				"1YiB.rust-bundle",
+				"github.vscode-github-actions"
 			]
 		}
 	}
