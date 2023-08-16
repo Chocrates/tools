@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/base:jammy
+    command: sleep infinity
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
