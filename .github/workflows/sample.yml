@@ -1,0 +1,16 @@
+---
+name: Sample Workflow
+
+on:
+  push:
+  workflow_dispatch:
+
+
+# comment
+
+jobs:
+  job1:
+    name: Job 1
+    steps:
+      - run: echo "hello world"
+      - uses: actions/checkout@v4
