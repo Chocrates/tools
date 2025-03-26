@@ -1,7 +1,7 @@
 # Tools
 *Note:* This repository is currently in flux, getting rewritten in Rust.  Leaving the historical README below and I will remove it once the rewrite is more mature
 This repository holds a number of scripts to assist in administering and migrating GitHub repositories and Organizations
-Most deal diredtly with the GitHub API.
+Most deal diredtly with the GitHub API.  
 
 ## Installation
 ### From Binaries
