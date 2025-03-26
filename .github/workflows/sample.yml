@@ -12,6 +12,7 @@ jobs:
   job1:
     name: Job 1
     runs-on: ubuntu-latest
+    environment: dev
     outputs:
       OUTPUT1: ${{ steps.step-one.outputs.test }}
     steps:
