@@ -15,6 +15,10 @@ jobs:
     outputs:
       OUTPUT1: ${{ steps.step-one.outputs.test }}
     steps:
+      - uses: actions/checkout@v4
+      - run: |
+          chmod +x .github/scripts/hello.sh
+          ./.github/scripts/hello.sh
       - id: step-one
         shell: bash -x {0}
         run: | 
