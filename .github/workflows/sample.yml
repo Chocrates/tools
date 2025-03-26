@@ -26,5 +26,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: hello
-      - run: cat hello.txt
+      - run: |
+          cat hello.txt
+          echo $SECRET
+          echo '${{ secrets.IAMAVALUE }}'
+        env:
+          SECRET: ${{ secrets.IAMAVALUE }}
   
