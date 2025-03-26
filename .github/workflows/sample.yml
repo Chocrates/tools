@@ -6,16 +6,20 @@ on:
   workflow_dispatch:
 
 
-# comment
+
 
 jobs:
   job1:
     name: Job 1
     runs-on: ubuntu-latest
+    outputs:
+      OUTPUT1: ${{ steps.step-one.outputs.test }}
     steps:
-      - run: |
+      - id: step-one
+        run: | 
           echo "hello world" >> hello.txt
           echo "::warning file=app.js,line=1,col=5,endColumn=7,title=YOUR-TITLE::Missing semicolon"
+          echo "test=hello" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: hello
@@ -32,6 +36,7 @@ jobs:
           cat hello.txt
           echo $SECRET
           echo '${{ secrets.IAMAVALUE }}'
+          echo "${{ needs.job1.outputs.OUTPUT1 }}"
         env:
           SECRET: ${{ secrets.IAMAVALUE }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
