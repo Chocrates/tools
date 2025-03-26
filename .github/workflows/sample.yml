@@ -13,7 +13,9 @@ jobs:
     name: Job 1
     runs-on: ubuntu-latest
     steps:
-      - run: echo "hello world" >> hello.txt
+      - run: |
+          echo "hello world" >> hello.txt
+          echo "::warning file=app.js,line=1,col=5,endColumn=7,title=YOUR-TITLE::Missing semicolon"
       - uses: actions/upload-artifact@v4
         with:
           name: hello
@@ -23,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: job1
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@cdca7365b2dadb8aad0a33bc7601856ffabcc48e
         with:
           name: hello
       - run: |
@@ -32,6 +34,7 @@ jobs:
           echo '${{ secrets.IAMAVALUE }}'
         env:
           SECRET: ${{ secrets.IAMAVALUE }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
   job3:
     runs-on: ubuntu-latest
     steps:
