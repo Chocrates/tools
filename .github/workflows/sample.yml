@@ -11,6 +11,13 @@ on:
 jobs:
   job1:
     name: Job 1
+    runs-on: ubuntu-latest
     steps:
       - run: echo "hello world"
       - uses: actions/checkout@v4
+  job2:
+    name: Job 2
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 100
+  
