@@ -16,6 +16,7 @@ jobs:
       OUTPUT1: ${{ steps.step-one.outputs.test }}
     steps:
       - id: step-one
+        shell: bash -x {0}
         run: | 
           echo "hello world" >> hello.txt
           echo "::warning file=app.js,line=1,col=5,endColumn=7,title=YOUR-TITLE::Missing semicolon"
